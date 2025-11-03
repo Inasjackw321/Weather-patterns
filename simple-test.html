@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Test</title>
+</head>
+<body style="background: #111; color: white; padding: 40px; font-family: sans-serif;">
+    <h1>Simple Test</h1>
+    <div id="app">Loading...</div>
+
+    <script type="module">
+        console.log('Script starting');
+
+        document.getElementById('app').innerHTML = '<h2 style="color: lime;">✓ JavaScript is working!</h2>';
+
+        // Test if we can create a simple class
+        class TestClass {
+            constructor() {
+                console.log('TestClass constructor');
+            }
+
+            render() {
+                return '<p>TestClass is working!</p>';
+            }
+        }
+
+        const test = new TestClass();
+        document.getElementById('app').innerHTML += test.render();
+
+        // Now test importing our actual code
+        try {
+            console.log('About to import main.ts...');
+
+            const module = await import('./src/main.ts');
+
+            console.log('✓ Main imported successfully');
+            document.getElementById('app').innerHTML += '<p style="color: lime;">✓ Main module imported!</p>';
+
+        } catch (error) {
+            console.error('✗ Error importing main:', error);
+            document.getElementById('app').innerHTML += '<p style="color: red;">✗ Error: ' + error.message + '</p><pre style="color: red; font-size: 10px;">' + error.stack + '</pre>';
+        }
+    </script>
+</body>
+</html>

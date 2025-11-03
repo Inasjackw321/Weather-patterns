@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug MeteoScope</title>
+    <style>
+        body {
+            background: #0f172a;
+            color: #f3f4f6;
+            font-family: monospace;
+            padding: 20px;
+        }
+        .log { padding: 5px; border-left: 3px solid #3b82f6; margin: 5px 0; }
+        .error { border-left-color: #ef4444; color: #fca5a5; }
+        .success { border-left-color: #10b981; color: #86efac; }
+    </style>
+</head>
+<body>
+    <h1>MeteoScope Debug</h1>
+    <div id="logs"></div>
+
+    <script type="module">
+        const logs = document.getElementById('logs');
+
+        function log(msg, type = 'log') {
+            console.log(msg);
+            const div = document.createElement('div');
+            div.className = `log ${type}`;
+            div.textContent = msg;
+            logs.appendChild(div);
+        }
+
+        log('Starting debug...', 'log');
+
+        try {
+            log('Step 1: Importing style.css...', 'log');
+            await import('./src/style.css');
+            log('✓ style.css imported', 'success');
+        } catch (e) {
+            log('✗ style.css error: ' + e.message, 'error');
+        }
+
+        try {
+            log('Step 2: Importing types...', 'log');
+            const types = await import('./src/types/weather.ts');
+            log('✓ types imported', 'success');
+        } catch (e) {
+            log('✗ types error: ' + e.message, 'error');
+        }
+
+        try {
+            log('Step 3: Importing formatters...', 'log');
+            const formatters = await import('./src/utils/formatters.ts');
+            log('✓ formatters imported', 'success');
+        } catch (e) {
+            log('✗ formatters error: ' + e.message, 'error');
+        }
+
+        try {
+            log('Step 4: Importing weatherVariables...', 'log');
+            const vars = await import('./src/utils/weatherVariables.ts');
+            log('✓ weatherVariables imported', 'success');
+        } catch (e) {
+            log('✗ weatherVariables error: ' + e.message, 'error');
+        }
+
+        try {
+            log('Step 5: Importing models...', 'log');
+            const models = await import('./src/utils/models.ts');
+            log('✓ models imported', 'success');
+        } catch (e) {
+            log('✗ models error: ' + e.message, 'error');
+        }
+
+        try {
+            log('Step 6: Importing openmeteo API...', 'log');
+            const api = await import('./src/api/openmeteo.ts');
+            log('✓ API imported', 'success');
+        } catch (e) {
+            log('✗ API error: ' + e.message, 'error');
+        }
+
+        try {
+            log('Step 7: Importing WeatherChart...', 'log');
+            const chart = await import('./src/components/WeatherChart.ts');
+            log('✓ WeatherChart imported', 'success');
+        } catch (e) {
+            log('✗ WeatherChart error: ' + e.message, 'error');
+        }
+
+        try {
+            log('Step 8: Importing ProfessionalUI...', 'log');
+            const ui = await import('./src/components/ProfessionalUI.ts');
+            log('✓ ProfessionalUI imported', 'success');
+        } catch (e) {
+            log('✗ ProfessionalUI error: ' + e.message, 'error');
+        }
+
+        try {
+            log('Step 9: Importing main.ts...', 'log');
+            const main = await import('./src/main.ts');
+            log('✓ main.ts imported', 'success');
+            log('Waiting for app to initialize...', 'log');
+
+            setTimeout(() => {
+                const app = document.getElementById('app');
+                if (app && app.innerHTML.includes('MeteoScope')) {
+                    log('✓ APP INITIALIZED SUCCESSFULLY!', 'success');
+                } else {
+                    log('✗ App did not initialize', 'error');
+                }
+            }, 2000);
+        } catch (e) {
+            log('✗ main.ts error: ' + e.message, 'error');
+            log('Stack: ' + e.stack, 'error');
+        }
+    </script>
+
+    <div id="app" style="margin-top: 20px; padding: 20px; border: 1px solid #374151;"></div>
+</body>
+</html>

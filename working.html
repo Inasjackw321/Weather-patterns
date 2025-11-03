@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MeteoScope - Working Version</title>
+    <link rel="stylesheet" href="/src/style.css">
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen">
+    <div id="app"></div>
+
+    <script type="module">
+        console.log('Working version starting...');
+
+        const app = document.getElementById('app');
+
+        // Create a minimal UI
+        app.innerHTML = `
+            <div class="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-950 p-8">
+                <header class="bg-slate-900/80 backdrop-blur-md rounded-2xl p-6 mb-8 border border-blue-500/20">
+                    <h1 class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">
+                        🌍 MeteoScope
+                    </h1>
+                    <p class="text-slate-400 mt-2">Professional Weather Data Visualization</p>
+                </header>
+
+                <div class="bg-slate-900/40 backdrop-blur-md rounded-2xl p-6 border border-slate-700/50">
+                    <h2 class="text-2xl font-semibold text-white mb-4">🎉 Success!</h2>
+                    <p class="text-slate-300 mb-4">
+                        The application framework is loading correctly. Now loading full features...
+                    </p>
+                    <div class="bg-blue-900/30 border border-blue-700/50 rounded-xl p-4 text-blue-200">
+                        <p class="font-semibold">Status: <span id="status">Initializing...</span></p>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        const statusEl = document.getElementById('status');
+
+        // Now try to load the real app step by step
+        try {
+            statusEl.textContent = 'Loading utilities...';
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            const { WEATHER_VARIABLES } = await import('./src/utils/weatherVariables.ts');
+            console.log('✓ Variables loaded:', WEATHER_VARIABLES.length);
+
+            statusEl.textContent = 'Loading models...';
+            const { WEATHER_MODELS } = await import('./src/utils/models.ts');
+            console.log('✓ Models loaded:', WEATHER_MODELS.length);
+
+            statusEl.textContent = 'Loading API...';
+            const api = await import('./src/api/openmeteo.ts');
+            console.log('✓ API loaded');
+
+            statusEl.textContent = 'Loading chart library...';
+            const { WeatherChart } = await import('./src/components/WeatherChart.ts');
+            console.log('✓ WeatherChart loaded');
+
+            statusEl.textContent = 'Loading main app...';
+
+            // Import the whole app
+            await import('./src/main.ts');
+
+            statusEl.textContent = '✓ Fully loaded!';
+            statusEl.style.color = '#86efac';
+
+        } catch (error) {
+            console.error('Error:', error);
+            statusEl.textContent = '✗ Error: ' + error.message;
+            statusEl.style.color = '#fca5a5';
+
+            app.innerHTML += `
+                <div class="mt-4 bg-red-900/30 border border-red-700/50 rounded-xl p-4">
+                    <h3 class="text-red-200 font-semibold mb-2">Error Details:</h3>
+                    <pre class="text-red-300 text-sm overflow-x-auto">${error.stack}</pre>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
