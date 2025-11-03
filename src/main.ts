@@ -19,6 +19,8 @@ class WeatherApp {
   private currentDatasets: Array<{ label: string; data: number[]; unit: string }> = [];
 
   constructor() {
+    console.log('WeatherApp constructor called');
+
     // Initialize with default preferences
     this.preferences = {
       location: {
@@ -46,21 +48,44 @@ class WeatherApp {
 
     const appElement = document.getElementById('app');
     if (!appElement) {
+      console.error('App element not found!');
       throw new Error('App element not found');
     }
 
-    this.ui = new ProfessionalUI(
-      appElement,
-      this.handlePreferencesChange.bind(this),
-      this.fetchAndDisplayData.bind(this),
-      this.handleExport.bind(this)
-    );
+    console.log('App element found, creating UI...');
 
-    this.init();
+    try {
+      this.ui = new ProfessionalUI(
+        appElement,
+        this.handlePreferencesChange.bind(this),
+        this.fetchAndDisplayData.bind(this),
+        this.handleExport.bind(this)
+      );
+
+      console.log('UI created, calling init...');
+      this.init();
+    } catch (error) {
+      console.error('Error during initialization:', error);
+      appElement.innerHTML = `
+        <div style="color: white; padding: 20px; background: #1e293b;">
+          <h1>Error Loading MeteoScope</h1>
+          <pre style="color: #ef4444;">${error instanceof Error ? error.message : String(error)}</pre>
+          <p>Check the browser console for more details.</p>
+        </div>
+      `;
+      throw error;
+    }
   }
 
   private init(): void {
-    this.ui.render(this.preferences);
+    console.log('Rendering UI...');
+    try {
+      this.ui.render(this.preferences);
+      console.log('UI rendered successfully');
+    } catch (error) {
+      console.error('Error rendering UI:', error);
+      throw error;
+    }
   }
 
   private handlePreferencesChange(changes: Partial<UserPreferences>): void {
@@ -274,6 +299,28 @@ class WeatherApp {
 }
 
 // Initialize the app
+console.log('Main script loaded');
+
 document.addEventListener('DOMContentLoaded', () => {
-  new WeatherApp();
+  console.log('DOM Content Loaded');
+  try {
+    new WeatherApp();
+    console.log('WeatherApp initialized successfully');
+  } catch (error) {
+    console.error('Failed to initialize WeatherApp:', error);
+    const app = document.getElementById('app');
+    if (app) {
+      app.innerHTML = `
+        <div style="color: white; padding: 40px; background: #0f172a; font-family: sans-serif;">
+          <h1 style="color: #ef4444; margin-bottom: 20px;">⚠️ MeteoScope Failed to Load</h1>
+          <div style="background: #1e293b; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+            <h2 style="margin-top: 0;">Error Details:</h2>
+            <pre style="color: #fca5a5; overflow-x: auto;">${error instanceof Error ? error.message + '\n\n' + error.stack : String(error)}</pre>
+          </div>
+          <p>Please open the browser console (F12) for more information.</p>
+          <p>Try refreshing the page or contact support if the issue persists.</p>
+        </div>
+      `;
+    }
+  }
 });

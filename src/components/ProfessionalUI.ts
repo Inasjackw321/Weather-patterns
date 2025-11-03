@@ -15,17 +15,23 @@ export class ProfessionalUI {
     onFetchData: () => void,
     onExport: (type: 'png' | 'svg' | 'csv') => void
   ) {
+    console.log('ProfessionalUI constructor');
     this.app = appElement;
     this.onPreferencesChange = onPreferencesChange;
     this.onFetchData = onFetchData;
     this.onExport = onExport;
+    console.log('ProfessionalUI constructor complete');
   }
 
   /**
    * Render the professional UI
    */
   public render(preferences: UserPreferences): void {
-    this.app.innerHTML = `
+    console.log('ProfessionalUI.render() called');
+    console.log('Preferences:', preferences);
+
+    try {
+      this.app.innerHTML = `
       <div class="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-950">
         <!-- Professional Header -->
         <header class="bg-slate-900/80 backdrop-blur-md border-b border-blue-500/20 sticky top-0 z-50 shadow-lg">
@@ -305,7 +311,13 @@ export class ProfessionalUI {
       </div>
     `;
 
-    this.attachEventListeners(preferences);
+      console.log('HTML rendered, attaching event listeners...');
+      this.attachEventListeners(preferences);
+      console.log('Event listeners attached successfully');
+    } catch (error) {
+      console.error('Error in render():', error);
+      throw error;
+    }
   }
 
   private renderModelOptions(currentModel: WeatherModel): string {
