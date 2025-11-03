@@ -1,7 +1,7 @@
 {
-  "name": "meteoscope",
-  "version": "1.0.0",
-  "description": "MeteoScope - Professional Weather Data Visualization Platform",
+  "name": "metscope-visuals",
+  "version": "2.0.0",
+  "description": "MetScope Visuals - Pure JavaScript Weather Visualization (No Build Required)",
   "type": "module",
   "scripts": {
     "dev": "vite",
