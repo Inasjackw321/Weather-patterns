@@ -1,5 +1,5 @@
 import './style.css';
-import { UI } from './components/UI';
+import { ProfessionalUI } from './components/ProfessionalUI';
 import { WeatherChart } from './components/WeatherChart';
 import {
   fetchHistoricalData,
@@ -13,16 +13,18 @@ import { format, subDays } from 'date-fns';
 
 class WeatherApp {
   private preferences: UserPreferences;
-  private ui: UI;
+  private ui: ProfessionalUI;
   private chart: WeatherChart | null = null;
+  private currentTimeData: string[] = [];
+  private currentDatasets: Array<{ label: string; data: number[]; unit: string }> = [];
 
   constructor() {
     // Initialize with default preferences
     this.preferences = {
       location: {
-        latitude: 40.7128,
-        longitude: -74.006,
-        name: 'New York, United States',
+        latitude: 51.5074,
+        longitude: -0.1278,
+        name: 'London, United Kingdom',
       },
       timeRange: {
         start: format(subDays(new Date(), 30), 'yyyy-MM-dd'),
@@ -47,21 +49,18 @@ class WeatherApp {
       throw new Error('App element not found');
     }
 
-    this.ui = new UI(appElement, this.handlePreferencesChange.bind(this));
+    this.ui = new ProfessionalUI(
+      appElement,
+      this.handlePreferencesChange.bind(this),
+      this.fetchAndDisplayData.bind(this),
+      this.handleExport.bind(this)
+    );
+
     this.init();
   }
 
   private init(): void {
     this.ui.render(this.preferences);
-    this.setupEventListeners();
-  }
-
-  private setupEventListeners(): void {
-    const fetchButton = document.getElementById('fetch-data-btn');
-    fetchButton?.addEventListener('click', () => this.fetchAndDisplayData());
-
-    const exportButton = document.getElementById('export-data-btn');
-    exportButton?.addEventListener('click', () => this.exportData());
   }
 
   private handlePreferencesChange(changes: Partial<UserPreferences>): void {
@@ -74,7 +73,7 @@ class WeatherApp {
   }
 
   private async fetchAndDisplayData(): Promise<void> {
-    const dataType = (document.getElementById('data-type') as HTMLSelectElement)?.value;
+    const dataType = this.ui.getDataType();
 
     if (this.preferences.selectedVariables.length === 0) {
       this.ui.showError('Please select at least one weather variable');
@@ -95,7 +94,7 @@ class WeatherApp {
     } catch (error) {
       console.error('Error fetching data:', error);
       this.ui.showError(
-        error instanceof Error ? error.message : 'Failed to fetch weather data'
+        error instanceof Error ? error.message : 'Failed to fetch weather data. Please try again.'
       );
     } finally {
       this.ui.hideLoading();
@@ -115,7 +114,11 @@ class WeatherApp {
       }
     );
 
-    this.displayChartData(data.hourly!.time, data.hourly!);
+    if (!data.hourly) {
+      throw new Error('No forecast data available');
+    }
+
+    this.displayChartData(data.hourly.time, data.hourly);
   }
 
   private async fetchHistorical(): Promise<void> {
@@ -130,15 +133,25 @@ class WeatherApp {
       }
     );
 
-    this.displayChartData(data.hourly!.time, data.hourly!);
+    if (!data.hourly) {
+      throw new Error('No historical data available');
+    }
+
+    this.displayChartData(data.hourly.time, data.hourly);
   }
 
   private async fetchModelComparison(): Promise<void> {
+    if (this.preferences.selectedVariables.length === 0) {
+      throw new Error('Please select at least one variable');
+    }
+
+    // Use top models for comparison
     const models: WeatherModel[] = [
+      'ecmwf_ifs025',
       'gfs_global',
-      'ecmwf_ifs',
       'icon_global',
-      'meteofrance_arpege',
+      'meteofrance_arpege_world',
+      'gem_global',
     ];
 
     const multiModelData = await fetchMultiModelForecast(
@@ -155,19 +168,26 @@ class WeatherApp {
 
     // Combine data from all models
     const firstModel = models[0];
-    const timeData = multiModelData[firstModel].hourly!.time;
+    const firstData = multiModelData[firstModel];
+
+    if (!firstData.hourly) {
+      throw new Error('No model data available');
+    }
+
+    const timeData = firstData.hourly.time;
     const variable = this.preferences.selectedVariables[0];
+    const varInfo = getVariable(variable);
 
-    const datasets = models.map((model) => {
-      const modelData = multiModelData[model];
-      const varInfo = getVariable(variable);
-
-      return {
-        label: `${varInfo?.name || variable} (${model})`,
-        data: modelData.hourly![variable] as number[],
-        unit: varInfo?.unit || '',
-      };
-    });
+    const datasets = models
+      .filter((model) => multiModelData[model]?.hourly?.[variable])
+      .map((model) => {
+        const modelData = multiModelData[model];
+        return {
+          label: `${varInfo?.name || variable} - ${model.toUpperCase()}`,
+          data: modelData.hourly![variable] as number[],
+          unit: varInfo?.unit || '',
+        };
+      });
 
     this.displayChart(timeData, datasets);
   }
@@ -176,16 +196,22 @@ class WeatherApp {
     timeData: string[],
     hourlyData: { [key: string]: number[] | string[] }
   ): void {
-    const datasets = this.preferences.selectedVariables.map((variableId) => {
-      const variable = getVariable(variableId);
-      const data = hourlyData[variableId] as number[];
+    const datasets = this.preferences.selectedVariables
+      .filter((variableId) => hourlyData[variableId])
+      .map((variableId) => {
+        const variable = getVariable(variableId);
+        const data = hourlyData[variableId] as number[];
 
-      return {
-        label: variable?.name || variableId,
-        data: data,
-        unit: variable?.unit || '',
-      };
-    });
+        return {
+          label: variable?.name || variableId,
+          data: data,
+          unit: variable?.unit || '',
+        };
+      });
+
+    if (datasets.length === 0) {
+      throw new Error('No data available for selected variables');
+    }
 
     this.displayChart(timeData, datasets);
   }
@@ -199,6 +225,10 @@ class WeatherApp {
     if (!canvas) {
       throw new Error('Canvas element not found');
     }
+
+    // Store data for export
+    this.currentTimeData = timeData;
+    this.currentDatasets = datasets;
 
     if (!this.chart) {
       this.chart = new WeatherChart(canvas);
@@ -218,17 +248,27 @@ class WeatherApp {
     this.ui.showStats(stats);
   }
 
-  private exportData(): void {
-    // Get the chart data and export as CSV
-    const infoMsg = document.getElementById('info-message');
-    if (infoMsg) {
-      infoMsg.innerHTML = `
-        <strong>Export Feature:</strong> Chart data can be exported as CSV.
-        Right-click on the chart to download the image.
-        <br>
-        <small class="text-xs">CSV export functionality coming soon!</small>
-      `;
-      infoMsg.classList.remove('hidden');
+  private handleExport(type: 'png' | 'svg' | 'csv'): void {
+    if (!this.chart) {
+      alert('No chart data to export. Please visualize data first.');
+      return;
+    }
+
+    const timestamp = format(new Date(), 'yyyy-MM-dd_HHmmss');
+    const locationSlug = this.preferences.location.name?.replace(/[^a-zA-Z0-9]/g, '_') || 'location';
+    const filename = `meteoscope_${locationSlug}_${timestamp}`;
+
+    try {
+      if (type === 'png') {
+        this.chart.exportAsPNG(`${filename}.png`);
+      } else if (type === 'svg') {
+        this.chart.exportAsSVG(`${filename}.svg`);
+      } else if (type === 'csv') {
+        this.chart.exportAsCSV(this.currentTimeData, this.currentDatasets, `${filename}.csv`);
+      }
+    } catch (error) {
+      console.error('Export error:', error);
+      alert('Failed to export data. Please try again.');
     }
   }
 }

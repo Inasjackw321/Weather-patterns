@@ -1,7 +1,7 @@
 {
-  "name": "weather-patterns",
+  "name": "meteoscope",
   "version": "1.0.0",
-  "description": "Advanced Weather Visualization Tool with Open-Meteo Integration",
+  "description": "MeteoScope - Professional Weather Data Visualization Platform",
   "type": "module",
   "scripts": {
     "dev": "vite",

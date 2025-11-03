@@ -175,4 +175,86 @@ export class WeatherChart {
 
     this.chart.update();
   }
+
+  /**
+   * Export chart as PNG image
+   */
+  public exportAsPNG(filename: string = 'meteoscope-chart.png'): void {
+    if (!this.chart) return;
+
+    const url = this.canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.download = filename;
+    link.href = url;
+    link.click();
+  }
+
+  /**
+   * Export chart as SVG (via canvas rendering)
+   */
+  public exportAsSVG(filename: string = 'meteoscope-chart.svg'): void {
+    if (!this.chart) return;
+
+    // Create SVG from canvas
+    const canvas = this.canvas;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const svgString = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="${canvas.width}" height="${canvas.height}">
+        <foreignObject width="100%" height="100%">
+          <div xmlns="http://www.w3.org/1999/xhtml">
+            <img src="${canvas.toDataURL()}" />
+          </div>
+        </foreignObject>
+      </svg>
+    `;
+
+    const blob = new Blob([svgString], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.download = filename;
+    link.href = url;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  /**
+   * Export chart data as CSV
+   */
+  public exportAsCSV(
+    timeData: string[],
+    datasets: Array<{ label: string; data: number[]; unit: string }>,
+    filename: string = 'meteoscope-data.csv'
+  ): void {
+    // Create CSV header
+    const headers = ['Time', ...datasets.map((d) => `${d.label} (${d.unit})`)];
+    const csvRows = [headers.join(',')];
+
+    // Add data rows
+    for (let i = 0; i < timeData.length; i++) {
+      const row = [
+        timeData[i],
+        ...datasets.map((d) => d.data[i]?.toString() || ''),
+      ];
+      csvRows.push(row.join(','));
+    }
+
+    // Create and download file
+    const csvString = csvRows.join('\n');
+    const blob = new Blob([csvString], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.download = filename;
+    link.href = url;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  /**
+   * Get the chart instance (for advanced operations)
+   */
+  public getChart(): Chart | null {
+    return this.chart;
+  }
 }

@@ -62,15 +62,46 @@ export interface ForecastWeatherData {
   };
 }
 
-// Weather model types
+// Weather model types - All available models from Open-Meteo
 export type WeatherModel =
   | 'best_match'
-  | 'gfs_global'
+  | 'ecmwf_ifs025'
   | 'ecmwf_ifs'
-  | 'meteofrance_arpege'
+  | 'ecmwf_aifs025'
+  | 'gfs_seamless'
+  | 'gfs_global'
+  | 'gfs_hrrr'
+  | 'gfs_graphcast025'
+  | 'meteofrance_seamless'
+  | 'meteofrance_arpege_world'
+  | 'meteofrance_arpege_europe'
+  | 'meteofrance_arome_france'
+  | 'jma_seamless'
+  | 'jma_msm'
   | 'jma_gsm'
+  | 'gem_seamless'
+  | 'gem_global'
+  | 'gem_regional'
+  | 'gem_hrdps_continental'
+  | 'icon_seamless'
   | 'icon_global'
-  | 'gem_global';
+  | 'icon_eu'
+  | 'icon_d2'
+  | 'bom_access_global'
+  | 'bom_access_global_ensemble'
+  | 'metno_nordic'
+  | 'knmi_seamless'
+  | 'knmi_harmonie_arome_europe'
+  | 'knmi_harmonie_arome_netherlands'
+  | 'dmi_seamless'
+  | 'dmi_harmonie_arome_europe'
+  | 'ukmo_seamless'
+  | 'ukmo_global_deterministic_10km'
+  | 'ukmo_uk_deterministic_2km'
+  | 'arpae_cosmo_seamless'
+  | 'arpae_cosmo_2i'
+  | 'arpae_cosmo_2i_ruc'
+  | 'arpae_cosmo_5m';
 
 // Chart configuration
 export interface ChartConfig {
