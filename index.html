@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MetScope Visuals - Professional Weather Visualization</title>
-    <meta name="description" content="Professional weather data visualization with global coverage and multi-model forecasts">
+    <title>MetScope Visuals - Advanced Weather Visualization</title>
+    <meta name="description" content="Professional weather visualization with ensemble models, animations, and advanced analytics">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌍</text></svg>">
 
     <!-- Chart.js from CDN -->
@@ -18,55 +18,141 @@
             box-sizing: border-box;
         }
 
+        :root {
+            --primary: #3b82f6;
+            --secondary: #22d3ee;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark-bg: #0f172a;
+            --card-bg: rgba(15, 23, 42, 0.6);
+            --border: rgba(71, 85, 105, 0.5);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0f172a 100%);
+            background: linear-gradient(135deg, var(--dark-bg) 0%, #1e3a8a 50%, var(--dark-bg) 100%);
+            background-attachment: fixed;
             min-height: 100vh;
             color: #f3f4f6;
+            overflow-x: hidden;
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
             padding: 20px;
         }
 
-        /* Header */
+        /* Animated Header */
         header {
-            background: rgba(15, 23, 42, 0.8);
+            background: var(--card-bg);
             backdrop-filter: blur(10px);
             border-radius: 16px;
             padding: 24px 32px;
             margin-bottom: 24px;
             border: 1px solid rgba(59, 130, 246, 0.2);
+            animation: fadeIn 0.6s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+            animation: shimmer 3s infinite;
         }
 
         h1 {
-            font-size: 42px;
+            font-size: 48px;
             font-weight: 700;
-            background: linear-gradient(to right, #60a5fa, #22d3ee);
+            background: linear-gradient(135deg, #60a5fa, #22d3ee, #8b5cf6);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             margin-bottom: 8px;
+            animation: fadeIn 0.8s ease-out;
         }
 
         .subtitle {
             color: #94a3b8;
             font-size: 14px;
+            animation: fadeIn 1s ease-out;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+
+        .tab:hover {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-color: transparent;
         }
 
         /* Controls Panel */
         .controls {
-            background: rgba(15, 23, 42, 0.6);
+            background: var(--card-bg);
             backdrop-filter: blur(10px);
             border-radius: 16px;
             padding: 24px;
             margin-bottom: 24px;
-            border: 1px solid rgba(71, 85, 105, 0.5);
+            border: 1px solid var(--border);
+            animation: fadeIn 0.7s ease-out;
         }
 
-        .control-group {
+        .control-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
@@ -75,9 +161,9 @@
 
         label {
             display: block;
-            color: #60a5fa;
+            color: var(--secondary);
             font-weight: 600;
-            font-size: 13px;
+            font-size: 12px;
             margin-bottom: 8px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -85,27 +171,26 @@
 
         input[type="text"],
         input[type="date"],
+        input[type="number"],
         select {
             width: 100%;
             padding: 12px;
             background: rgba(30, 41, 59, 0.8);
-            border: 1px solid rgba(71, 85, 105, 0.5);
+            border: 1px solid var(--border);
             border-radius: 8px;
             color: #f3f4f6;
             font-size: 14px;
             transition: all 0.3s;
         }
 
-        input[type="text"]:focus,
-        input[type="date"]:focus,
-        select:focus {
+        input:focus, select:focus {
             outline: none;
-            border-color: #3b82f6;
+            border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
-        /* Checkboxes */
-        .variables {
+        /* Checkboxes Grid */
+        .checkbox-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 12px;
@@ -123,7 +208,8 @@
         }
 
         .checkbox-label:hover {
-            background: rgba(30, 41, 59, 0.8);
+            background: rgba(59, 130, 246, 0.2);
+            transform: translateX(4px);
         }
 
         .checkbox-label input {
@@ -133,12 +219,13 @@
             cursor: pointer;
         }
 
-        .checkbox-label span {
-            font-size: 13px;
-            color: #e5e7eb;
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
         }
 
-        /* Buttons */
         .btn {
             padding: 14px 28px;
             border: none;
@@ -147,11 +234,30 @@
             font-size: 15px;
             cursor: pointer;
             transition: all 0.3s;
-            margin-right: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.5s, height 0.5s;
+        }
+
+        .btn:active::before {
+            width: 300px;
+            height: 300px;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #3b82f6, #22d3ee);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
         }
 
@@ -161,96 +267,148 @@
         }
 
         .btn-success {
-            background: linear-gradient(135deg, #10b981, #06b6d4);
+            background: linear-gradient(135deg, var(--success), #06b6d4);
             color: white;
         }
 
-        .btn-success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning), #f97316);
+            color: white;
         }
 
-        /* Chart Section */
-        .chart-section {
-            background: rgba(15, 23, 42, 0.6);
+        .btn-secondary {
+            background: rgba(71, 85, 105, 0.5);
+            color: white;
+            border: 1px solid var(--border);
+        }
+
+        /* Charts Grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .chart-card {
+            background: var(--card-bg);
             backdrop-filter: blur(10px);
             border-radius: 16px;
             padding: 24px;
-            margin-bottom: 24px;
-            border: 1px solid rgba(71, 85, 105, 0.5);
+            border: 1px solid var(--border);
+            animation: fadeIn 0.8s ease-out;
+            transition: transform 0.3s;
+        }
+
+        .chart-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--secondary);
         }
 
         .chart-container {
             position: relative;
-            height: 450px;
+            height: 400px;
             background: rgba(30, 41, 59, 0.3);
             border-radius: 12px;
-            padding: 20px;
-        }
-
-        /* Stats */
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 16px;
-            margin-top: 20px;
-        }
-
-        .stat-card {
-            background: rgba(30, 41, 59, 0.5);
-            border-radius: 12px;
             padding: 16px;
-            border: 1px solid rgba(71, 85, 105, 0.3);
         }
 
-        .stat-card h4 {
-            color: #60a5fa;
-            font-size: 12px;
+        /* Model Comparison */
+        .model-comparison {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .model-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            border: 2px solid var(--border);
+            transition: all 0.3s;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .model-card:hover {
+            border-color: var(--primary);
+            transform: scale(1.02);
+        }
+
+        .model-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary);
             margin-bottom: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
-        .stat-row {
+        .model-stats {
             display: flex;
             justify-content: space-between;
             margin-bottom: 8px;
-            font-size: 14px;
+            font-size: 13px;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            animation: fadeIn 1.2s ease-out;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
         }
 
         .stat-label {
             color: #94a3b8;
-        }
-
-        .stat-value {
-            color: #f3f4f6;
-            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         /* Loading */
         .loading {
             text-align: center;
             padding: 40px;
-            color: #60a5fa;
+            color: var(--primary);
         }
 
         .spinner {
             border: 3px solid rgba(255, 255, 255, 0.1);
             border-radius: 50%;
-            border-top: 3px solid #3b82f6;
+            border-top: 3px solid var(--primary);
             width: 40px;
             height: 40px;
             animation: spin 1s linear infinite;
             margin: 0 auto 16px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .hidden {
-            display: none;
         }
 
         /* Messages */
@@ -258,6 +416,7 @@
             padding: 16px;
             border-radius: 8px;
             margin-bottom: 16px;
+            animation: slideIn 0.4s ease-out;
         }
 
         .message-info {
@@ -278,7 +437,7 @@
             color: #86efac;
         }
 
-        /* Location results */
+        /* Location Results */
         .location-results {
             position: absolute;
             z-index: 1000;
@@ -286,40 +445,99 @@
             max-height: 300px;
             overflow-y: auto;
             background: rgba(30, 41, 59, 0.95);
-            border: 1px solid rgba(71, 85, 105, 0.5);
+            border: 1px solid var(--border);
             border-radius: 8px;
             margin-top: 4px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
         }
 
         .location-result {
             padding: 12px;
             cursor: pointer;
-            border-bottom: 1px solid rgba(71, 85, 105, 0.3);
-            transition: background 0.2s;
+            border-bottom: 1px solid var(--border);
+            transition: all 0.2s;
         }
 
         .location-result:hover {
-            background: rgba(59, 130, 246, 0.2);
+            background: rgba(59, 130, 246, 0.3);
+            transform: translateX(8px);
         }
 
-        .location-result:last-child {
-            border-bottom: none;
+        /* Ensemble Visualization */
+        .ensemble-viz {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(30, 41, 59, 0.5);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
         }
 
         footer {
             text-align: center;
-            padding: 20px;
+            padding: 30px;
             color: #64748b;
             font-size: 13px;
+            animation: fadeIn 1.5s ease-out;
         }
 
         footer a {
-            color: #60a5fa;
+            color: var(--secondary);
             text-decoration: none;
+            transition: color 0.3s;
         }
 
         footer a:hover {
-            text-decoration: underline;
+            color: var(--primary);
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            height: 4px;
+            background: rgba(59, 130, 246, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 12px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            width: 0%;
+            transition: width 0.3s;
+            animation: shimmer 1.5s infinite;
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .control-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 32px;
+            }
         }
     </style>
 </head>
@@ -327,13 +545,22 @@
     <div class="container">
         <header>
             <h1>🌍 MetScope Visuals</h1>
-            <p class="subtitle">Professional Weather Data Visualization Platform</p>
+            <p class="subtitle">Advanced Weather Visualization & Model Analysis Platform</p>
         </header>
 
-        <div class="controls">
-            <h2 style="margin-bottom: 20px; font-size: 20px;">⚙️ Configuration</h2>
+        <!-- Tabs -->
+        <div class="tabs">
+            <div class="tab active" data-tab="forecast">📊 Forecast</div>
+            <div class="tab" data-tab="historical">📈 Historical</div>
+            <div class="tab" data-tab="ensemble">🎲 Ensemble</div>
+            <div class="tab" data-tab="comparison">⚖️ Model Compare</div>
+        </div>
 
-            <div class="control-group">
+        <!-- Controls Panel -->
+        <div class="controls">
+            <h2 style="margin-bottom: 20px; font-size: 20px; color: var(--secondary);">⚙️ Configuration</h2>
+
+            <div class="control-grid">
                 <div>
                     <label>📍 Location</label>
                     <div style="position: relative;">
@@ -342,28 +569,51 @@
                     </div>
                 </div>
 
-                <div>
-                    <label>📊 Data Type</label>
-                    <select id="data-type">
-                        <option value="forecast">7-Day Forecast</option>
-                        <option value="historical">Historical Archive</option>
-                    </select>
-                </div>
-
-                <div>
+                <div id="model-selector">
                     <label>🌐 Weather Model</label>
                     <select id="weather-model">
                         <option value="best_match">Best Match (Auto)</option>
-                        <option value="ecmwf_ifs025">ECMWF IFS 0.25°</option>
-                        <option value="gfs_global">GFS Global</option>
-                        <option value="icon_global">ICON Global</option>
-                        <option value="meteofrance_arpege_world">MeteoFrance ARPEGE</option>
-                        <option value="gem_global">GEM Global</option>
+                        <optgroup label="🌍 Global High-Res">
+                            <option value="ecmwf_ifs025">ECMWF IFS 0.25° (9km)</option>
+                            <option value="ecmwf_ifs">ECMWF IFS 0.4° (44km)</option>
+                            <option value="ecmwf_aifs025">ECMWF AIFS 0.25° (AI)</option>
+                        </optgroup>
+                        <optgroup label="🇺🇸 NOAA Models">
+                            <option value="gfs_global">GFS Global (25km)</option>
+                            <option value="gfs_hrrr">HRRR High-Res (3km)</option>
+                            <option value="gfs_graphcast025">GraphCast AI (25km)</option>
+                        </optgroup>
+                        <optgroup label="🇩🇪 DWD ICON">
+                            <option value="icon_global">ICON Global (11km)</option>
+                            <option value="icon_eu">ICON EU (7km)</option>
+                            <option value="icon_d2">ICON D2 (2km)</option>
+                        </optgroup>
+                        <optgroup label="🇫🇷 MeteoFrance">
+                            <option value="meteofrance_arpege_world">ARPEGE World (25km)</option>
+                            <option value="meteofrance_arpege_europe">ARPEGE Europe (10km)</option>
+                            <option value="meteofrance_arome_france">AROME France (1.5km)</option>
+                        </optgroup>
+                        <optgroup label="🇨🇦 Canada GEM">
+                            <option value="gem_global">GEM Global (25km)</option>
+                            <option value="gem_regional">GEM Regional (10km)</option>
+                            <option value="gem_hrdps_continental">GEM HRDPS (2.5km)</option>
+                        </optgroup>
+                        <optgroup label="🌏 Other Regions">
+                            <option value="jma_gsm">JMA GSM Japan (55km)</option>
+                            <option value="bom_access_global">BOM ACCESS Australia (15km)</option>
+                            <option value="metno_nordic">MetNo Nordic (1km)</option>
+                            <option value="ukmo_global_deterministic_10km">UKMO Global (10km)</option>
+                        </optgroup>
                     </select>
+                </div>
+
+                <div id="forecast-days-container">
+                    <label>📅 Forecast Days</label>
+                    <input type="number" id="forecast-days" min="1" max="16" value="7">
                 </div>
             </div>
 
-            <div id="date-controls" class="control-group hidden">
+            <div id="date-controls" class="control-grid hidden">
                 <div>
                     <label>📅 Start Date</label>
                     <input type="date" id="start-date">
@@ -375,36 +625,52 @@
             </div>
 
             <div>
-                <label>📈 Select Weather Variables</label>
-                <div class="variables" id="variables"></div>
+                <label>📈 Weather Variables (Select Multiple)</label>
+                <div class="checkbox-grid" id="variables"></div>
             </div>
 
-            <div>
+            <div class="btn-group">
                 <button class="btn btn-primary" id="fetch-btn">🔄 Visualize Data</button>
-                <button class="btn btn-success" id="export-btn">💾 Export CSV</button>
+                <button class="btn btn-success" id="export-csv-btn">💾 Export CSV</button>
+                <button class="btn btn-warning" id="export-png-btn">📊 Export PNG</button>
+                <button class="btn btn-secondary" id="compare-models-btn">⚖️ Compare Models</button>
+            </div>
+
+            <div class="progress-bar hidden" id="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
             </div>
         </div>
 
-        <div class="chart-section">
-            <div id="loading" class="loading hidden">
-                <div class="spinner"></div>
-                <p>Loading weather data...</p>
-            </div>
+        <!-- Loading & Messages -->
+        <div id="loading" class="loading hidden">
+            <div class="spinner"></div>
+            <p>Loading weather data...</p>
+        </div>
 
-            <div id="message" class="message message-info">
-                ℹ️ Select variables and click "Visualize Data" to generate charts
-            </div>
+        <div id="message" class="message message-info">
+            ℹ️ Select variables and click "Visualize Data" to generate interactive charts with animations
+        </div>
 
+        <!-- Charts Grid -->
+        <div id="charts-container" class="charts-grid hidden"></div>
+
+        <!-- Ensemble Visualization -->
+        <div id="ensemble-container" class="ensemble-viz hidden">
+            <h3 class="chart-title">🎲 Ensemble Forecast Analysis</h3>
             <div class="chart-container">
-                <canvas id="weather-chart"></canvas>
+                <canvas id="ensemble-chart"></canvas>
             </div>
-
-            <div id="stats" class="stats hidden"></div>
         </div>
+
+        <!-- Model Comparison -->
+        <div id="model-comparison" class="model-comparison hidden"></div>
+
+        <!-- Statistics -->
+        <div id="stats-container" class="stats-grid hidden"></div>
 
         <footer>
             Powered by <a href="https://open-meteo.com/" target="_blank">Open-Meteo API</a> |
-            MetScope Visuals 2024
+            MetScope Visuals - Advanced Weather Analytics | 2024
         </footer>
     </div>
 
